@@ -6,28 +6,29 @@ import {
   Get,
   Delete,
   Patch,
+  Req,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dtos/create-user.dto';
-import { UserInterface } from './model/user.interface';
-import { AuthService } from './auth.service';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { CreateUserDto, UpdateUserDto, UserDto } from './dtos';
+import { Serialize } from './../Interceptor/serialize.interceptor';
 
 @Controller('user')
+@Serialize(UserDto)
 export class UserController {
-  constructor(
-    private userService: UserService,
-    private authService: AuthService,
-  ) {}
+  constructor(private userService: UserService) {}
 
   @Post('signup')
-  signUp(@Body() body: CreateUserDto) {
-    return this.authService.signup(body.email, body.password);
+  async signUp(@Body() body: CreateUserDto) {
+    const accessToken = await this.userService.signup(
+      body.email.toLowerCase(),
+      body.password,
+    );
+    return { accessToken };
   }
 
   @Post('login')
   login(@Body() body: CreateUserDto) {
-    return this.authService.login(body.email, body.password);
+    return this.userService.login(body.email, body.password);
   }
 
   @Get('list')

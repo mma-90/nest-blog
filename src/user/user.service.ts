@@ -2,17 +2,72 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
-  Body,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './model/user.entity';
-import { UserInterface } from './model/user.interface';
+import { AuthService } from './../auth/auth.service';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(
+    @InjectRepository(User) private repo: Repository<User>,
+    private authService: AuthService,
+  ) {}
+
+  // async signup(email: string, password: string) {
+  //   const [user] = await this.findByEmail(email);
+
+  //   if (user)
+  //     throw new BadRequestException('email already have been used before');
+
+  //   const encryptedHash = await this.authService.hashPassword(password);
+  //   const { hash, ...payload } = await this.create(email, encryptedHash);
+
+  //   return await this.authService.generateJwt(payload);
+  // }
+
+  // async login(email: string, password: string) {
+  //   const [user] = await this.findByEmail(email);
+  //   if (!user) throw new NotFoundException('email not found');
+
+  //   const check = await this.authService.comparePasswords(password, user.hash);
+
+  //   if (!check) throw new BadRequestException('Wrong crediantls');
+
+  //   const { hash, ...payload } = user;
+
+  //   const accessToken = await this.authService.generateJwt(payload);
+
+  //   return { accessToken };
+  // }
+
+  async signup(email: string, password: string) {
+    const [user] = await this.findByEmail(email);
+
+    if (user)
+      throw new BadRequestException('email already have been used before');
+
+    const encryptedHash = await this.authService.hashPassword(password);
+    const { hash, ...payload } = await this.create(email, encryptedHash);
+
+    return await this.authService.generateJwt(payload);
+  }
+
+  async login(email: string, password: string) {
+    const [user] = await this.findByEmail(email);
+    if (!user) throw new NotFoundException('email not found');
+
+    const check = await this.authService.comparePasswords(password, user.hash);
+
+    if (!check) throw new BadRequestException('Wrong Credentials');
+
+    const { hash, ...payload } = user;
+
+    const accessToken = await this.authService.generateJwt(payload);
+
+    return { accessToken };
+  }
 
   async create(email: string, hash: string) {
     const user = await this.repo.create({ email, hash });
@@ -27,7 +82,7 @@ export class UserService {
     return user;
   }
 
-  findOneByEmail(email: string) {
+  findByEmail(email: string) {
     return this.repo.findBy({ email });
   }
 
