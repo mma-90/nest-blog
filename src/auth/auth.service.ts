@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -20,41 +22,40 @@ export class AuthService {
     // private userService: UserService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
   ) {}
 
-  //   async encryptPassword(plainPassword: string, salt = null) {
-  //     salt = salt || randomBytes(8).toString('hex');
-  //     const hash = ((await scrypt(plainPassword, salt, 32)) as Buffer).toString(
-  //       'hex',
-  //     );
-  //     return salt + '.' + hash;
-  //   }
+  async signup(email: string, password: string) {
+    const [user] = await this.userService.findByEmail(email);
 
-  //   async signup(email: string, password: string) {
-  //     const [user] = await this.userService.findOneByEmail(email);
+    if (user)
+      throw new BadRequestException('email already have been used before');
 
-  //     if (user)
-  //       throw new BadRequestException('email already have been used before');
+    const encryptedHash = await this.hashPassword(password);
+    const { hash, ...payload } = await this.userService.create(
+      email,
+      encryptedHash,
+    );
 
-  //     const encryptedHash = await this.encryptPassword(password);
+    return await this.generateJwt(payload);
+  }
 
-  //     return this.userService.create(email, encryptedHash);
-  //   }
+  async login(email: string, password: string) {
+    const [user] = await this.userService.findByEmail(email);
+    if (!user) throw new NotFoundException('email not found');
 
-  //   async login(email: string, password: string) {
-  //     const [user] = await this.userService.findOneByEmail(email);
+    const check = await this.comparePasswords(password, user.hash);
 
-  //     if (!user) throw new NotFoundException('email not exist');
+    if (!check) throw new BadRequestException('Wrong Credentials');
 
-  //     const [salt, storedHash] = user.hash.split('.');
+    const { hash, ...payload } = user;
 
-  //     const encrypted = await this.encryptPassword(password, salt);
-  //     const [_, hash] = encrypted.split('.');
+    const accessToken = await this.generateJwt(payload);
 
-  //     if (storedHash !== hash) throw new BadRequestException('bad credentials');
-
-  //     return user;
-  //   }
+    return { accessToken };
+  }
 
   async generateJwt(payload: UserInterface): Promise<string> {
     const token = await this.jwtService.signAsync(payload, {

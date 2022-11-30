@@ -11,15 +11,19 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserDto } from './dtos';
 import { Serialize } from './../Interceptor/serialize.interceptor';
+import { AuthService } from './../auth/auth.service';
 
 @Controller('user')
 @Serialize(UserDto)
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private authService: AuthService,
+  ) {}
 
   @Post('signup')
   async signUp(@Body() body: CreateUserDto) {
-    const accessToken = await this.userService.signup(
+    const accessToken = await this.authService.signup(
       body.email.toLowerCase(),
       body.password,
     );
@@ -28,7 +32,7 @@ export class UserController {
 
   @Post('login')
   login(@Body() body: CreateUserDto) {
-    return this.userService.login(body.email, body.password);
+    return this.authService.login(body.email, body.password);
   }
 
   @Get('list')

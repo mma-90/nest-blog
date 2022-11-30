@@ -11,6 +11,9 @@ export class User {
   @Column()
   hash: string;
 
+  @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })
+  role: string;
+
   @BeforeInsert()
   lowerEmail() {
     this.email = this.email.toLowerCase();
