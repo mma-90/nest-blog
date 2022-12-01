@@ -36,14 +36,14 @@ export class UserController {
     private authService: AuthService,
   ) {}
 
-  @Post('signup')
-  async signUp(@Body() body: CreateUserDto) {
-    const accessToken = await this.authService.signup(
-      body.email.toLowerCase(),
-      body.password,
-    );
-    return { accessToken };
-  }
+  // @Post('signup')
+  // async signUp(@Body() body: CreateUserDto) {
+  //   const accessToken = await this.authService.signup(
+  //     body.email.toLowerCase(),
+  //     body.password,
+  //   );
+  //   return { accessToken };
+  // }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)

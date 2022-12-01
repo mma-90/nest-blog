@@ -64,7 +64,15 @@ export class UserService {
   }
 
   findAll() {
-    return this.repo.find();
+    // return this.repo.find();
+    return (
+      this.repo
+        .createQueryBuilder('user')
+        .select('*')
+        // .limit(3)
+        .orderBy('id', 'ASC')
+        .getRawMany()
+    );
   }
 
   async update(id: number, data: Partial<User>) {
