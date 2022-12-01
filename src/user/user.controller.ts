@@ -21,10 +21,10 @@ import {
 import { Serialize } from './../Interceptor/serialize.interceptor';
 import { AuthService } from './../auth/auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { GetUser } from '../auth/decorator/get-user.decorator';
 import { User } from './model/user.entity';
-import { Role } from 'src/auth/enum/role.enum';
-import { HasRoles } from 'src/auth/decorator/roles.decorator';
+import { Role } from '../auth/enum/role.enum';
+import { HasRoles } from '../auth/decorator/roles.decorator';
 import { JwtAuthGuard } from './../auth/guard/jwt.guard';
 import { RolesGuard } from './../auth/guard/roles.guard';
 
