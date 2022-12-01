@@ -12,14 +12,19 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto, UserDto } from './dtos';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserDto,
+  UpdateUserRoleDto,
+} from './dtos';
 import { Serialize } from './../Interceptor/serialize.interceptor';
 import { AuthService } from './../auth/auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from './model/user.entity';
 import { Role } from 'src/auth/enum/role.enum';
-import { AuthorizedRoles } from 'src/auth/decorator/roles.decorator';
+import { HasRoles } from 'src/auth/decorator/roles.decorator';
 import { JwtAuthGuard } from './../auth/guard/jwt.guard';
 import { RolesGuard } from './../auth/guard/roles.guard';
 
@@ -47,7 +52,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard) //apply guards for specific route
-  @AuthorizedRoles(Role.Admin, Role.User) //specify allowed roles to access this route
+  @HasRoles(Role.Admin) //specify allowed roles to access this route
   @Get('list')
   findUsers() {
     return this.userService.findAll();
@@ -60,16 +65,27 @@ export class UserController {
     return user;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   findUser(@Param('id') id: number) {
     return this.userService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: number, @Body() body: UpdateUserDto) {
     return this.userService.update(id, body);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @HasRoles(Role.Admin)
+  @Patch(':id/role')
+  updateUserRole(@Param('id') id: number, @Body() body: UpdateUserRoleDto) {
+    return this.userService.update(id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HasRoles(Role.Admin)
   @Delete(':id')
   removeUser(@Param('id') id: number) {
     return this.userService.remove(id);

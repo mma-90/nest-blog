@@ -17,10 +17,14 @@ export class RolesGuard implements CanActivate {
 
     const req = context.switchToHttp().getRequest();
 
-    console.log(req.user);
+    // req have user thanks to JWTStrategy validate return
 
     if (requiredRoles.includes(req.user.role)) return true;
 
     return false;
   }
 }
+
+/*
+Reflector helping in getting roles that are entered by @HasRoles(...) decorator
+*/

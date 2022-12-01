@@ -70,7 +70,6 @@ export class UserService {
   async update(id: number, data: Partial<User>) {
     const user = await this.findOne(id);
     Object.assign(user, data);
-
     return this.repo.save(user);
   }
 
