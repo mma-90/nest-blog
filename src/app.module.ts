@@ -5,8 +5,9 @@ import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './user/model/user.entity';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+import { RolesGuard } from './auth/guard/roles.guard';
 
 @Module({
   imports: [

@@ -8,6 +8,8 @@ import {
   Patch,
   Req,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateUserDto, UserDto } from './dtos';
@@ -16,6 +18,10 @@ import { AuthService } from './../auth/auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorator/get-user.decorator';
 import { User } from './model/user.entity';
+import { Role } from 'src/auth/enum/role.enum';
+import { AuthorizedRoles } from 'src/auth/decorator/roles.decorator';
+import { JwtAuthGuard } from './../auth/guard/jwt.guard';
+import { RolesGuard } from './../auth/guard/roles.guard';
 
 @Controller('user')
 @Serialize(UserDto)
@@ -35,16 +41,20 @@ export class UserController {
   }
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   login(@Body() body: CreateUserDto) {
     return this.authService.login(body.email, body.password);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard) //apply guards for specific route
+  @AuthorizedRoles(Role.Admin, Role.User) //specify allowed roles to access this route
   @Get('list')
   findUsers() {
     return this.userService.findAll();
   }
 
-  @UseGuards(AuthGuard('jwt_strategy_key'))
+  @UseGuards(JwtAuthGuard)
+  // @UseGuards(AuthGuard('jwt_strategy_key'))
   @Get('me')
   getCurrentUser(@GetUser() user: User) {
     return user;
