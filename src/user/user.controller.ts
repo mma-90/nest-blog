@@ -14,6 +14,8 @@ import { CreateUserDto, UpdateUserDto, UserDto } from './dtos';
 import { Serialize } from './../Interceptor/serialize.interceptor';
 import { AuthService } from './../auth/auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from './model/user.entity';
 
 @Controller('user')
 @Serialize(UserDto)
@@ -44,8 +46,8 @@ export class UserController {
 
   @UseGuards(AuthGuard('jwt_strategy_key'))
   @Get('me')
-  getCurrentUser() {
-    return 'hi';
+  getCurrentUser(@GetUser() user: User) {
+    return user;
   }
 
   @Get(':id')
