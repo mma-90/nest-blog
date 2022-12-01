@@ -3,6 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 
+/*
+Strategy
+It is a way to define custom algorithm/logic to authenticate users. 
+Passport has a lot of strategies like JWT, facebook, google and more.. 
+You extend a strategy and add your custom logic like from where to get the user.
+
+*/
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(
   Strategy,
@@ -17,6 +25,7 @@ export class JwtStrategy extends PassportStrategy(
   }
 
   async validate(payload: any) {
-    return payload;
+    // i can change what I want to be returned
+    return payload; //return added to express request (req.user)
   }
 }
