@@ -9,6 +9,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './model/user.entity';
 import { AuthService } from './../auth/auth.service';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class UserService {
@@ -74,7 +79,7 @@ export class UserService {
     return this.repo.findBy({ email });
   }
 
-  findAll() {
+  findAll(): Promise<User[]> {
     // return this.repo.find();
     return (
       this.repo
@@ -95,5 +100,16 @@ export class UserService {
   async remove(id: number) {
     const user = await this.findOne(id);
     return this.repo.remove(user);
+  }
+
+  async paginate(options: IPaginationOptions): Promise<Pagination<User>> {
+    const queryBuilder = this.repo
+      .createQueryBuilder('user')
+      .select('id, email')
+      .orderBy('id', 'ASC');
+    // .addSelect('id');
+
+    // return paginate<User>(this.repo, options);
+    return paginate<User>(queryBuilder, options);
   }
 }

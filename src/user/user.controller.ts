@@ -10,6 +10,9 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
+  DefaultValuePipe,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import {
@@ -54,8 +57,16 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RolesGuard) //apply guards for specific route
   @HasRoles(Role.Admin) //specify allowed roles to access this route
   @Get('list')
-  findUsers() {
-    return this.userService.findAll();
+  findUsers(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ) {
+    // return this.userService.findAll();
+    return this.userService.paginate({
+      page,
+      limit,
+      route: 'http://localhost:3000/user/list',
+    });
   }
 
   @UseGuards(JwtAuthGuard)
