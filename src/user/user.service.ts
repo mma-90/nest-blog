@@ -104,7 +104,8 @@ export class UserService {
     const [result, count] = await this.repo.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
-      where: { email: Like(`%.com`) },
+      order: { id: 'ASC' },
+      // where: { email: Like(`%.com`) },
     });
 
     return {
