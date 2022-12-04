@@ -59,6 +59,17 @@ export class UserService {
     return user;
   }
 
+  async findOneWith(id: number, relation: string) {
+    const user = await this.repo.findOne({
+      where: { id },
+      relations: [relation],
+    });
+
+    if (!user) throw new NotFoundException('user not found');
+
+    return user;
+  }
+
   findByEmail(email: string) {
     return this.repo.findBy({ email });
   }

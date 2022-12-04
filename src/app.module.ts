@@ -8,6 +8,7 @@ import { User } from './user/model/user.entity';
 import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/guard/roles.guard';
+import { BookmarkModule } from './bookmark/bookmark.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RolesGuard } from './auth/guard/roles.guard';
     }),
     UserModule,
     AuthModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [

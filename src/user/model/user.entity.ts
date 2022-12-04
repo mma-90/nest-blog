@@ -1,4 +1,11 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  OneToMany,
+} from 'typeorm';
+import { Bookmark } from './../../bookmark/bookmark.entity';
 
 @Entity('users')
 export class User {
@@ -13,6 +20,9 @@ export class User {
 
   @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })
   role: string;
+
+  @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
+  bookmarks: Bookmark[];
 
   @BeforeInsert()
   lowerEmail() {
