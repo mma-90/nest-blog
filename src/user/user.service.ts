@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { User } from './model/user.entity';
 import { AuthService } from './../auth/auth.service';
 import {
@@ -84,22 +84,35 @@ export class UserService {
     });
   }
 
-  findAll(page: number, limit: number): Promise<User[]> {
+  async findAll(page: number, limit: number): Promise<any> {
     // return this.repo.find();
-    page = page < 0 ? 1 : page;
+    page = page <= 0 ? 1 : page;
     limit = limit > 100 ? 100 : limit;
     limit = limit < 1 ? 10 : limit;
 
-    return (
-      this.repo
-        .createQueryBuilder('user')
-        .select('*')
-        // .limit(3)
-        .skip((page - 1) * limit)
-        .take(limit)
-        .orderBy('id', 'ASC')
-        .getRawMany()
-    );
+    // return (
+    //   this.repo
+    //     .createQueryBuilder('user')
+    //     .select('*')
+    //     // .limit(3)
+    //     .skip((page - 1) * limit)
+    //     .take(limit)
+    //     .orderBy('id', 'ASC')
+    //     .getRawMany()
+    // );
+
+    const [result, count] = await this.repo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      where: { email: Like(`%.com`) },
+    });
+
+    return {
+      count,
+      pages: Math.ceil(count / limit),
+      currentPage: page,
+      result,
+    };
   }
 
   async update(id: number, data: Partial<User>) {
