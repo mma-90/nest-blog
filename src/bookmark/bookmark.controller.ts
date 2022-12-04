@@ -55,6 +55,6 @@ export class BookmarkController {
     @GetUser('id') userId: number,
     @Param('id', ParseIntPipe) bookmarkId: number,
   ) {
-    return this.bookmarkService.removeBookmark(userId, bookmarkId);
+    // return this.bookmarkService.removeBookmark(userId, bookmarkId);
   }
 }

@@ -28,7 +28,8 @@ export class AuthService {
   ) {}
 
   async signup(email: string, password: string) {
-    const [user] = await this.userService.findByEmail(email);
+    // const [user] = await this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email);
 
     if (user)
       throw new BadRequestException('email already have been used before');
@@ -43,7 +44,10 @@ export class AuthService {
   }
 
   async login(email: string, password: string) {
-    const [user] = await this.userService.findByEmail(email);
+    // const [user] = await this.userService.findByEmail(email);
+    const user = await this.userService.findByEmail(email, true); //true: with hash
+    console.log(user);
+
     if (!user) throw new NotFoundException('email not found');
 
     const check = await this.comparePasswords(password, user.hash);

@@ -75,17 +75,28 @@ export class UserService {
     return user;
   }
 
-  findByEmail(email: string) {
-    return this.repo.findBy({ email });
+  findByEmail(email: string, withHash = false) {
+    // return this.repo.findBy({ email });
+
+    return this.repo.findOne({
+      where: { email },
+      select: { id: true, role: true, hash: withHash },
+    });
   }
 
-  findAll(): Promise<User[]> {
+  findAll(page: number, limit: number): Promise<User[]> {
     // return this.repo.find();
+    page = page < 0 ? 1 : page;
+    limit = limit > 100 ? 100 : limit;
+    limit = limit < 1 ? 10 : limit;
+
     return (
       this.repo
         .createQueryBuilder('user')
         .select('*')
         // .limit(3)
+        .skip((page - 1) * limit)
+        .take(limit)
         .orderBy('id', 'ASC')
         .getRawMany()
     );

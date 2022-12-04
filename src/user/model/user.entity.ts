@@ -15,7 +15,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ select: false })
   hash: string;
 
   @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })

@@ -61,12 +61,12 @@ export class UserController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
   ) {
-    // return this.userService.findAll();
-    return this.userService.paginate({
-      page,
-      limit,
-      route: 'http://localhost:3000/user/list',
-    });
+    return this.userService.findAll(page, limit);
+    // return this.userService.paginate({
+    //   page,
+    //   limit,
+    //   route: 'http://localhost:3000/user/list',
+    // });
   }
 
   @UseGuards(JwtAuthGuard)

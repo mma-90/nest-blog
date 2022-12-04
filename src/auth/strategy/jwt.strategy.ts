@@ -25,6 +25,7 @@ export class JwtStrategy extends PassportStrategy(
   }
 
   async validate(payload: any) {
+    console.log(payload);
     // i can change what I want to be returned
     return payload; //return added to express request (req.user)
   }

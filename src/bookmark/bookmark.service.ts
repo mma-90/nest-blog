@@ -10,6 +10,7 @@ import { Bookmark } from './bookmark.entity';
 import { Repository } from 'typeorm';
 import { UpdateBookmarkDto } from './dtos/update-bookmark.dto';
 import { UserService } from './../user/user.service';
+import { User } from 'src/user/model/user.entity';
 
 @Injectable()
 export class BookmarkService {
@@ -28,30 +29,56 @@ export class BookmarkService {
 
   async getBookmarks(userId: number) {
     const user = await this.userService.findOneWith(userId, 'bookmarks');
+
     return {
       user: { id: user.id },
       bookmarks: [...user.bookmarks],
     };
+
+    // return user;
   }
 
   async getBookmarkById(userId: number, bookmarkId: number) {
-    const bookmark = await this.repo.findOne({
-      where: { id: bookmarkId },
-      relations: ['user'],
-    });
-    // const bookmark = this.repo
+    // const bookmark = await this.repo
     //   .createQueryBuilder('bookmark')
-    //   // .leftJoinAndSelect('bookmark.user', 'users.id')
-    //   .leftJoin('bookmark.user', 'users.id')
-    //   .select('desc')
+    //   .leftJoinAndSelect('bookmark.user', 'user')
+    //   // .leftJoin('bookmark.user', 'user')
+    //   .where('bookmark.id = :bookmarkId', { bookmarkId })
+    //   .andWhere('bookmark.user = :userId', { userId })
+    //   // .select('bookmark.id, user.email')
+    //   // .getRawOne();
     //   .getOne();
 
-    if (!bookmark) throw new NotFoundException('bookmark not found');
+    const bookmark = await this.repo.findOne({
+      relations: {
+        user: true,
+      },
+      where: {
+        id: bookmarkId,
+        // user: {
+        //   id: userId,
+        // },
+      },
+      // select: {
+      //   user: {
+      //     id: true,
+      //     hash: false,
+      //   },
+      // },
+    });
+
+    console.log(userId, bookmark);
+
+    if (!bookmark)
+      throw new NotFoundException(
+        `no bookmark with id:(${bookmarkId}) linked to this user id:(${userId})`,
+      );
 
     if (!bookmark.user || bookmark.user.id !== userId)
       throw new UnauthorizedException(
         'You are not allowed to access this resource',
       );
+
     return bookmark;
   }
 
@@ -61,17 +88,12 @@ export class BookmarkService {
     dto: UpdateBookmarkDto,
   ) {
     // if (!dto) throw new BadRequestException('update are missing in request');
-
-    const bookmark = await this.getBookmarkById(userId, bookmarkId);
-
-    Object.assign(bookmark, dto);
-
-    return this.repo.save(bookmark);
-  }
-
-  async removeBookmark(userId: number, bookmarkId: number) {
-    const bookmark = await this.getBookmarkById(userId, bookmarkId);
-
-    return this.repo.remove(bookmark);
+    //   const bookmark = await this.getBookmarkById(userId, bookmarkId);
+    //   Object.assign(bookmark, dto);
+    //   return this.repo.save(bookmark);
+    // }
+    // async removeBookmark(userId: number, bookmarkId: number) {
+    //   const bookmark = await this.getBookmarkById(userId, bookmarkId);
+    //   return this.repo.remove(bookmark);
   }
 }
